@@ -3,6 +3,7 @@ import { convertToCoreMessages, streamText } from "ai";
 import { OpenAI } from "openai";
 
 export const runtime = "edge";
+const MAX_RETRIES = 2;
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -34,35 +35,69 @@ export async function POST(req: Request) {
   
   // Use the model specified in environment variables or fallback to gpt-4-turbo
   const model = process.env.OPENAI_API_MODEL || "gpt-4-turbo";
+  let retries = 0;
   
-  try {
-    // For single message format, use direct completion instead of streaming
-    if (body.message) {
-      const openaiClient = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY
+  while (retries <= MAX_RETRIES) {
+    try {
+      // For single message format, use direct completion instead of streaming
+      if (body.message) {
+        const openaiClient = new OpenAI({
+          apiKey: process.env.OPENAI_API_KEY
+        });
+        
+        const response = await openaiClient.chat.completions.create({
+          model: model,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: body.message }
+          ],
+          temperature: 0.7,
+          max_tokens: 2000
+        });
+        
+        return Response.json({ content: response.choices[0].message.content });
+      }
+      
+      // For messages array format, use streaming
+      const result = await streamText({
+        model: openai(model),
+        messages: convertToCoreMessages(messages),
+        system: systemPrompt,
+        temperature: 0.7,
+        maxTokens: 2000
       });
       
-      const response = await openaiClient.chat.completions.create({
-        model: model,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: body.message }
-        ]
-      });
+      return result.toDataStreamResponse();
+    } catch (error: any) {
+      console.error(`OpenAI API error (attempt ${retries + 1}/${MAX_RETRIES + 1}):`, error);
       
-      return Response.json({ content: response.choices[0].message.content });
+      // If we've reached max retries, return error response
+      if (retries === MAX_RETRIES) {
+        // Provide more helpful error messages based on error type
+        if (error.status === 429) {
+          return Response.json({ 
+            error: "The AI service is currently experiencing high demand. Please try again in a moment." 
+          }, { status: 503 });
+        } else if (error.status === 401 || error.status === 403) {
+          return Response.json({ 
+            error: "Authentication error with the AI service. Please contact support." 
+          }, { status: 500 });
+        } else {
+          return Response.json({ 
+            error: "The AI service is temporarily unavailable. Please try again later." 
+          }, { status: 500 });
+        }
+      }
+      
+      // Exponential backoff before retry
+      const delay = Math.pow(2, retries) * 500; // 500ms, 1000ms, 2000ms
+      await new Promise(resolve => setTimeout(resolve, delay));
+      retries++;
     }
-    
-    // For messages array format, use streaming
-    const result = await streamText({
-      model: openai(model),
-      messages: convertToCoreMessages(messages),
-      system: systemPrompt,
-    });
-    
-    return result.toDataStreamResponse();
-  } catch (error) {
-    console.error("OpenAI API error:", error);
-    return Response.json({ error: "Failed to generate response" }, { status: 500 });
   }
+  
+  // This should never be reached due to the return in the final retry, but TypeScript might expect it
+  return Response.json({ 
+    error: "Unable to generate a response at this time." 
+  }, { status: 500 });
 }

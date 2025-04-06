@@ -46,14 +46,14 @@ export default function TrialCheckoutModal({ onClose }: TrialCheckoutModalProps)
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
         <AnimatePresence>
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl flex flex-col md:flex-row"
+            className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl flex flex-col md:flex-row my-8 max-h-[calc(100vh-4rem)] overflow-hidden"
           >
             <button
               onClick={onClose}
@@ -62,7 +62,7 @@ export default function TrialCheckoutModal({ onClose }: TrialCheckoutModalProps)
               <X className="h-6 w-6 text-gray-500" />
             </button>
             
-            <div className="w-full md:w-3/5 p-8">
+            <div className="w-full md:w-3/5 p-8 overflow-y-auto max-h-[calc(100vh-4rem)]">
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-gray-900">
                   StudyLens AI (Free Trial)

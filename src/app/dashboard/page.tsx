@@ -6,7 +6,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { 
   ArrowRight, Clock, Check, ChevronRight, Copy, Share, Twitter, 
-  Facebook, Linkedin, MessageCircle, Award, Brain, BookOpen, FileQuestion, Library, History, Users, Chrome
+  Facebook, Linkedin, MessageCircle, Award, Brain, BookOpen, FileQuestion, Library, History, Users, Chrome, Sparkles
 } from "lucide-react";
 import TrialCheckoutModal from "../components/TrialCheckoutModal";
 
@@ -48,56 +48,88 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       {showTrialModal && (
         <TrialCheckoutModal onClose={() => setShowTrialModal(false)} />
       )}
       
       {/* Main Content */}
       <div className="container mx-auto px-4 py-10">
-        <h1 className="text-2xl font-bold mb-8 text-gray-800">Welcome to StudyLens AI</h1>
+        <div className="flex flex-col items-center text-center mb-12">
+          <motion.div
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center justify-center p-2 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 mb-4"
+          >
+            <Sparkles className="h-8 w-8 text-white" />
+          </motion.div>
+          <h1 className="text-3xl md:text-4xl font-bold mb-3 text-gray-800 dark:text-white">Welcome to StudyLens AI</h1>
+          <p className="text-gray-600 dark:text-gray-300 max-w-2xl">Your personal AI study assistant that helps you learn faster and ace your exams.</p>
+        </div>
         
         {/* Top 3 Features */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* Chrome Extension Card */}
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-            <div className="relative h-48 bg-gray-800">
+          <motion.div 
+            whileHover={{ y: -5, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
+            transition={{ duration: 0.2 }}
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300"
+          >
+            <div className="relative h-48 bg-gradient-to-r from-indigo-600 to-blue-600">
               <Image 
                 src="/images/chrome-extension-feature.jpg" 
                 alt="Chrome Extension" 
                 fill 
-                className="object-cover opacity-70"
+                className="object-cover opacity-80 hover:opacity-100 transition-opacity duration-300"
               />
-              <div className="absolute inset-0 p-4 flex flex-col justify-between">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent p-4 flex flex-col justify-between">
                 <div className="flex justify-between">
-                  <div className="h-10 w-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                    <Chrome className="h-5 w-5 text-white" />
+                  <div className="h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg border border-white/30">
+                    <Chrome className="h-6 w-6 text-white" />
                   </div>
-                  <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-700 text-gray-300">
+                  <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-600/70 backdrop-blur-sm text-white border border-blue-400/30">
                     The OG
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white">Chrome Extension</h3>
+                  <h3 className="text-2xl font-bold text-white drop-shadow-md">Chrome Extension</h3>
                 </div>
               </div>
             </div>
             <div className="p-5">
-              <p className="text-gray-600 mb-6">
-                Screenshot any question and get instant answers on any quiz, homework, or test.
-              </p>
+              <div className="flex items-start mb-4">
+                <div className="flex-shrink-0 mr-3">
+                  <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                    <Image 
+                      src="/images/chrome-logo.svg" 
+                      alt="Chrome Logo" 
+                      width={20} 
+                      height={20} 
+                    />
+                  </div>
+                </div>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Screenshot any question and get instant answers on any quiz, homework, or test.
+                </p>
+              </div>
               <Link 
                 href="https://chrome.google.com/webstore/detail/studylens-ai-ace-tests-qu/mdfigkhdcpobdbgccoidpojfhcnbmmkd"
                 target="_blank"
-                className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 text-white rounded-lg font-medium transition-colors inline-block text-center"
+                className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-90 text-white rounded-lg font-medium transition-colors inline-flex items-center justify-center"
               >
+                <Chrome className="h-4 w-4 mr-2" />
                 Install Extension
               </Link>
             </div>
-          </div>
+          </motion.div>
           
           {/* AI Chatbot Card */}
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+          <motion.div 
+            whileHover={{ y: -5, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
+            transition={{ duration: 0.2 }}
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300"
+          >
             <div className="relative h-48 bg-gradient-to-r from-purple-600 to-blue-600">
               <Image 
                 src="/images/ai-chatbots-feature.jpg" 
@@ -105,74 +137,106 @@ export default function Dashboard() {
                 fill 
                 className="object-cover mix-blend-overlay"
               />
-              <div className="absolute inset-0 p-4 flex flex-col justify-between">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent p-4 flex flex-col justify-between">
                 <div className="flex justify-between">
-                  <div className="h-10 w-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                    <MessageCircle className="h-5 w-5 text-white" />
+                  <div className="h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg border border-white/30">
+                    <Brain className="h-6 w-6 text-white" />
                   </div>
-                  <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-500 text-white">
+                  <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-600/70 backdrop-blur-sm text-white border border-purple-400/30">
                     New
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white">AI Study Chatbots</h3>
+                  <h3 className="text-2xl font-bold text-white drop-shadow-md">AI Study Chatbots</h3>
                 </div>
               </div>
             </div>
             <div className="p-5">
-              <p className="text-gray-600 mb-6">
-                Ask questions and get instant answers to any subject with specialized AI tutors.
-              </p>
+              <div className="flex items-start mb-4">
+                <div className="flex-shrink-0 mr-3">
+                  <div className="h-10 w-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                    <MessageCircle className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                  </div>
+                </div>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Ask questions and get instant answers to any subject with specialized AI tutors.
+                </p>
+              </div>
               <Link 
                 href="/dashboard/chatbot" 
-                className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90 text-white rounded-lg font-medium transition-colors inline-block text-center"
+                className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:opacity-90 text-white rounded-lg font-medium transition-colors inline-flex items-center justify-center"
               >
+                <Brain className="h-4 w-4 mr-2" />
                 Try Now
               </Link>
             </div>
-          </div>
+          </motion.div>
           
           {/* StudyLens AI App Card */}
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-            <div className="relative h-48 bg-blue-500">
+          <motion.div 
+            whileHover={{ y: -5, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
+            transition={{ duration: 0.2 }}
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300"
+          >
+            <div className="relative h-48 bg-gradient-to-r from-blue-500 to-teal-500">
               <Image 
                 src="/images/mobile-app-feature.jpg" 
                 alt="Mobile App" 
                 fill 
                 className="object-cover mix-blend-overlay"
               />
-              <div className="absolute inset-0 p-4 flex flex-col justify-between">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent p-4 flex flex-col justify-between">
                 <div className="flex justify-between">
-                  <div className="h-10 w-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
+                  <div className="h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg border border-white/30">
                     <Image 
                       src="/apple-icon.svg" 
                       alt="iOS Icon" 
-                      width={24} 
-                      height={24} 
+                      width={30} 
+                      height={30} 
+                      className="drop-shadow-md"
                     />
                   </div>
-                  <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-700 text-white">
+                  <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-600/70 backdrop-blur-sm text-white border border-blue-400/30">
                     iOS app
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white">StudyLens AI App</h3>
+                  <h3 className="text-2xl font-bold text-white drop-shadow-md">StudyLens AI App</h3>
                 </div>
               </div>
             </div>
             <div className="p-5">
-              <p className="text-gray-600 mb-6">
-                Take a picture and get clear, step-by-step solutions instantly on your phone.
-              </p>
+              <div className="flex items-start mb-4">
+                <div className="flex-shrink-0 mr-3">
+                  <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                    <Image 
+                      src="/apple-icon.svg" 
+                      alt="iOS Icon" 
+                      width={20} 
+                      height={20} 
+                    />
+                  </div>
+                </div>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Take a picture and get clear, step-by-step solutions instantly on your phone.
+                </p>
+              </div>
               <Link 
                 href="https://apps.apple.com/app/studylens-ai/id1234567890"
                 target="_blank"
-                className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 text-white rounded-lg font-medium transition-colors inline-block text-center"
+                className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-teal-500 hover:opacity-90 text-white rounded-lg font-medium transition-colors inline-flex items-center justify-center"
               >
+                <Image 
+                  src="/apple-icon.svg" 
+                  alt="iOS Icon" 
+                  width={16} 
+                  height={16} 
+                  className="mr-2"
+                />
                 Get App
               </Link>
             </div>
-          </div>
+          </motion.div>
         </div>
         
         {/* Two Column Layout for Free Trial and Ambassador Program */}
