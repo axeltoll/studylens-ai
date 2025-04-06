@@ -2,7 +2,8 @@ import { openai } from "@ai-sdk/openai";
 import { convertToCoreMessages, streamText } from "ai";
 import { OpenAI } from "openai";
 
-export const runtime = "edge";
+// Change from Edge to Node runtime for Firebase compatibility
+export const runtime = "nodejs";
 const MAX_RETRIES = 2;
 
 export async function POST(req: Request) {
@@ -38,9 +39,10 @@ export async function POST(req: Request) {
   const apiKey = process.env.OPENAI_API_KEY || "";
   const organizationId = process.env.OPENAI_ORGANIZATION_ID || "";
   
-  // Log key for debugging (partial)
+  // Enhanced logging for debugging
   console.log("Using API Model:", model);
-  console.log("API Key starts with:", apiKey.substring(0, 10) + "...");
+  console.log("API Key format:", apiKey.startsWith("sk-proj-") ? "Project API key" : "Standard API key");
+  console.log("API Key length:", apiKey.length);
   console.log("Using organization ID:", organizationId ? "Yes" : "No");
   
   let retries = 0;
@@ -67,16 +69,41 @@ export async function POST(req: Request) {
         return Response.json({ content: response.choices[0].message.content });
       }
       
-      // For messages array format, use streaming with Vercel AI SDK
-      const result = await streamText({
-        model: openai(model as any),
-        messages: convertToCoreMessages(messages),
-        system: systemPrompt,
-        temperature: 0.7,
-        maxTokens: 2000
-      });
-      
-      return result.toDataStreamResponse();
+      // For messages array format, use streaming
+      try {
+        const result = await streamText({
+          model: openai(model as any),
+          messages: convertToCoreMessages(messages),
+          system: systemPrompt,
+          temperature: 0.7,
+          maxTokens: 2000
+        });
+        
+        return result.toDataStreamResponse();
+      } catch (streamError) {
+        console.error("Streaming error:", streamError);
+        
+        // Fallback to non-streaming if streaming fails
+        const openaiClient = new OpenAI({
+          apiKey: apiKey,
+          organization: organizationId
+        });
+        
+        const response = await openaiClient.chat.completions.create({
+          model: model,
+          messages: [
+            { role: "system", content: systemPrompt },
+            ...messages.map((m: any) => ({
+              role: m.role === "user" ? "user" : "assistant",
+              content: m.content
+            }))
+          ],
+          temperature: 0.7,
+          max_tokens: 2000
+        });
+        
+        return Response.json({ content: response.choices[0].message.content });
+      }
     } catch (error: any) {
       console.error(`OpenAI API error (attempt ${retries + 1}/${MAX_RETRIES + 1}):`, error);
       
@@ -89,7 +116,7 @@ export async function POST(req: Request) {
           }, { status: 503 });
         } else if (error.status === 401 || error.status === 403) {
           return Response.json({ 
-            error: "Authentication error with the AI service. Please contact support." 
+            error: "Authentication error with the AI service. Please check API keys and permissions." 
           }, { status: 500 });
         } else {
           return Response.json({ 

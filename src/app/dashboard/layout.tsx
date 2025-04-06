@@ -5,12 +5,6 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { useUsage } from "@/lib/hooks/useUsage";
 import DashboardLayout from "@/app/components/DashboardLayout";
 import TrialCheckoutModal from "@/app/components/TrialCheckoutModal";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Dashboard | StudyLens AI",
-  description: "Your AI homework assistant",
-};
 
 export default function Layout({
   children,

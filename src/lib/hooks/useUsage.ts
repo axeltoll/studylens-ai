@@ -2,14 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from './useAuth';
-// Import usage context directly from the file that exports it
-import { useUsage as useContextUsage } from '@/lib/contexts/UsageContext';
 
 interface UsageData {
   queryUsagePercentage: number;
   storageUsagePercentage: number;
   exportUsagePercentage: number;
   isProUser: boolean;
+  isTrialUser: boolean;
   usedQueries: number;
   maxQueries: number;
   usedStorage: number;
@@ -18,13 +17,11 @@ interface UsageData {
   maxExports: number;
 }
 
-// Re-export the hook from the context
-export const useUsage = useContextUsage;
-
 export function useUsage() {
   const { user } = useAuth();
-  const [usageData, setUsageData] = useState<UsageData>({
+  const [usageData, setUsageData] = useState<Omit<UsageData, 'queryUsagePercentage' | 'storageUsagePercentage' | 'exportUsagePercentage'>>({
     isProUser: false,
+    isTrialUser: false,
     usedQueries: 0,
     maxQueries: 25,
     usedStorage: 0,
@@ -45,9 +42,11 @@ export function useUsage() {
         
         // For demo purposes, checking if email contains "pro" to simulate a pro user
         const isPro = user.email?.includes('pro') || false;
+        const isTrial = user.email?.includes('trial') || false;
         
         setUsageData({
           isProUser: isPro,
+          isTrialUser: isTrial,
           usedQueries: Math.floor(Math.random() * 20),
           maxQueries: isPro ? 999999 : 25,
           usedStorage: Math.floor(Math.random() * 50),

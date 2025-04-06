@@ -1,7 +1,8 @@
 import { anthropic } from "@ai-sdk/anthropic";
 import { convertToCoreMessages, streamText } from "ai";
 
-export const runtime = "edge";
+// Change from Edge to Node runtime for Firebase compatibility
+export const runtime = "nodejs";
 const MAX_RETRIES = 2;
 
 export async function POST(req: Request) {
@@ -10,9 +11,10 @@ export async function POST(req: Request) {
   const model = process.env.ANTHROPIC_MODEL || "claude-3-sonnet-20240229";
   const apiKey = process.env.ANTHROPIC_API_KEY || "";
   
-  // Log key for debugging (partial)
+  // Enhanced logging for debugging
   console.log("Using Anthropic Model:", model);
-  console.log("Anthropic API Key starts with:", apiKey.substring(0, 10) + "...");
+  console.log("Anthropic API Key format:", apiKey.startsWith("sk-ant-") ? "Standard API key" : "Unknown format");
+  console.log("API Key length:", apiKey.length);
   
   let retries = 0;
   
@@ -39,7 +41,7 @@ export async function POST(req: Request) {
           }, { status: 503 });
         } else if (error.status === 401 || error.status === 403) {
           return Response.json({ 
-            error: "Authentication error with the AI service. Please contact support." 
+            error: "Authentication error with the AI service. Please check API keys and permissions." 
           }, { status: 500 });
         } else {
           return Response.json({ 

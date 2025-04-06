@@ -35,6 +35,7 @@ export default function GeneralChatbotPage() {
     content: string;
     sender: "user" | "ai";
     timestamp: Date;
+    isPlaceholder?: boolean;
   }>>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -79,6 +80,20 @@ export default function GeneralChatbotPage() {
     setError(null);
     
     try {
+      // Add AI "thinking" placeholder message immediately
+      const placeholderId = (Date.now() + 1).toString();
+      setMessages(prev => [...prev, {
+        id: placeholderId,
+        content: "Thinking...",
+        sender: "ai" as const,
+        isPlaceholder: true,
+        timestamp: new Date()
+      }]);
+      
+      // Call the AI API with timeout handling
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+      
       // Call the AI API
       const response = await fetch('/api/openai/chat', {
         method: 'POST',
@@ -89,7 +104,10 @@ export default function GeneralChatbotPage() {
           message: submittedText,
           quizMode: quizModeEnabled
         }),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
         const errorData = await response.json();
@@ -106,23 +124,29 @@ export default function GeneralChatbotPage() {
         responseContent = `Based on academic sources:\n\n${responseContent}\n\nRemember to think critically about this answer and verify it with your own research.`;
       }
       
-      // Add AI response
-      const aiResponse = {
-        id: (Date.now() + 1).toString(),
-        content: responseContent,
-        sender: "ai" as const,
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, aiResponse]);
+      // Replace placeholder with actual AI response
+      setMessages(prev => prev.map(msg => 
+        msg.id === placeholderId ? {
+          id: placeholderId,
+          content: responseContent,
+          sender: "ai" as const,
+          timestamp: new Date()
+        } : msg
+      ));
     } catch (err: any) {
       console.error('Error fetching AI response:', err);
       
       // Display a more specific error message if available
-      const errorMessage = err.message && err.message !== 'Failed to get AI response' 
-        ? err.message 
-        : "I'm having trouble processing your request right now. Please try again later.";
+      let errorMessage = "I'm having trouble processing your request right now. Please try again later.";
       
+      if (err.name === "AbortError") {
+        errorMessage = "The request took too long to complete. This could be due to high server load or connection issues.";
+      } else if (err.message && err.message !== 'Failed to get AI response') {
+        errorMessage = err.message;
+      }
+      
+      // Remove placeholder message and set error
+      setMessages(prev => prev.filter(msg => !msg.isPlaceholder));
       setError(errorMessage);
     } finally {
       setIsLoading(false);

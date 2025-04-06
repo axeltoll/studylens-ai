@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
+import { OpenAI } from "openai";
 
-export const runtime = "edge";
+// Change from Edge to Node runtime for Firebase compatibility
+export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   try {
@@ -95,31 +97,70 @@ export async function POST(req: NextRequest) {
     // Use the model specified in environment variables or fallback to gpt-4o
     const model = process.env.OPENAI_API_MODEL || "gpt-4o";
     const apiKey = process.env.OPENAI_API_KEY || "";
+    const organizationId = process.env.OPENAI_ORGANIZATION_ID || "";
     
-    // Log key for debugging (partial)
+    // Enhanced logging for debugging
     console.log("AI Assistant using model:", model);
-    console.log("AI Assistant API Key starts with:", apiKey.substring(0, 10) + "...");
+    console.log("API Key format:", apiKey.startsWith("sk-proj-") ? "Project API key" : "Standard API key");
+    console.log("API Key length:", apiKey.length);
+    console.log("Using organization ID:", organizationId ? "Yes" : "No");
     
     try {
-      const result = await streamText({
-        model: openai(model as any),
-        messages: [
-          {
-            role: "user",
-            content: userMessage,
-          }
-        ],
-        system: systemPrompt,
-        temperature: 0.2,
-      });
-      
-      return result.toDataStreamResponse();
-    } catch (error) {
+      // First attempt with streaming
+      try {
+        const result = await streamText({
+          model: openai(model as any),
+          messages: [
+            {
+              role: "user",
+              content: userMessage,
+            }
+          ],
+          system: systemPrompt,
+          temperature: 0.2,
+        });
+        
+        return result.toDataStreamResponse();
+      } catch (streamError) {
+        console.error("AI assistant streaming error:", streamError);
+        
+        // Fallback to direct API call
+        const openaiClient = new OpenAI({
+          apiKey: apiKey,
+          organization: organizationId
+        });
+        
+        const response = await openaiClient.chat.completions.create({
+          model: model,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userMessage }
+          ],
+          temperature: 0.2,
+          max_tokens: 2000
+        });
+        
+        return NextResponse.json({ content: response.choices[0].message.content });
+      }
+    } catch (error: any) {
       console.error("OpenAI API error in AI assistant:", error);
-      return NextResponse.json(
-        { error: "The AI service is temporarily unavailable. Please try again later." },
-        { status: 500 }
-      );
+      
+      if (error.status === 429) {
+        return NextResponse.json(
+          { error: "The AI service is currently experiencing high demand. Please try again in a moment." }, 
+          { status: 503 }
+        );
+      } else if (error.status === 401 || error.status === 403) {
+        return NextResponse.json(
+          { error: "Authentication error with the AI service. Please check API keys and permissions." }, 
+          { status: 500 }
+        );
+      } else {
+        return NextResponse.json(
+          { error: "The AI service is temporarily unavailable. Please try again later." }, 
+          { status: 500 }
+        );
+      }
     }
   } catch (error) {
     console.error("Error processing AI assistant request:", error);
