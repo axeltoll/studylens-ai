@@ -17,9 +17,21 @@ interface UsageData {
   maxExports: number;
 }
 
-export function useUsage() {
+// Define internal raw usage data without the calculated percentages
+interface RawUsageData {
+  isProUser: boolean;
+  isTrialUser: boolean;
+  usedQueries: number;
+  maxQueries: number;
+  usedStorage: number;
+  maxStorage: number;
+  usedExports: number;
+  maxExports: number;
+}
+
+export function useUsage(): UsageData {
   const { user } = useAuth();
-  const [usageData, setUsageData] = useState<Omit<UsageData, 'queryUsagePercentage' | 'storageUsagePercentage' | 'exportUsagePercentage'>>({
+  const [usageData, setUsageData] = useState<RawUsageData>({
     isProUser: false,
     isTrialUser: false,
     usedQueries: 0,
