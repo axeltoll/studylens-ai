@@ -43,7 +43,7 @@ export default function AIAssistant({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
-  const { messages, input, setInput, handleSubmit, isLoading, setMessages } = useChat({
+  const { messages, input, setInput, handleSubmit, isLoading, setMessages, error } = useChat({
     api: "/api/ai-assistant",
     body: {
       content,
@@ -54,6 +54,10 @@ export default function AIAssistant({
     onResponse: () => {
       setIsSubmitting(false);
     },
+    onError: (error) => {
+      console.error("Error in AI Assistant:", error);
+      setIsSubmitting(false);
+    }
   });
   
   // Auto-resize textarea
@@ -356,6 +360,11 @@ export default function AIAssistant({
       
       {/* Input form */}
       <form onSubmit={handleFormSubmit} className="p-4 border-t border-gray-200 bg-white">
+        {error && (
+          <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+            <strong>Error:</strong> {error.toString()}
+          </div>
+        )}
         <div className="flex items-center">
           <input
             type="text"

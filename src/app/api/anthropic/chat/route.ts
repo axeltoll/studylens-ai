@@ -8,12 +8,18 @@ export async function POST(req: Request) {
   const { messages, systemPrompt } = await req.json();
   // Use the model specified in environment variables or fallback to claude-3-sonnet
   const model = process.env.ANTHROPIC_MODEL || "claude-3-sonnet-20240229";
+  const apiKey = process.env.ANTHROPIC_API_KEY || "";
+  
+  // Log key for debugging (partial)
+  console.log("Using Anthropic Model:", model);
+  console.log("Anthropic API Key starts with:", apiKey.substring(0, 10) + "...");
+  
   let retries = 0;
   
   while (retries <= MAX_RETRIES) {
     try {
       const result = await streamText({
-        model: anthropic(model),
+        model: anthropic(model as any),
         messages: convertToCoreMessages(messages),
         system: systemPrompt || "You are a helpful AI assistant",
         temperature: 0.7,

@@ -94,20 +94,33 @@ export async function POST(req: NextRequest) {
 
     // Use the model specified in environment variables or fallback to gpt-4o
     const model = process.env.OPENAI_API_MODEL || "gpt-4o";
+    const apiKey = process.env.OPENAI_API_KEY || "";
     
-    const result = await streamText({
-      model: openai(model),
-      messages: [
-        {
-          role: "user",
-          content: userMessage,
-        }
-      ],
-      system: systemPrompt,
-      temperature: 0.2,
-    });
+    // Log key for debugging (partial)
+    console.log("AI Assistant using model:", model);
+    console.log("AI Assistant API Key starts with:", apiKey.substring(0, 10) + "...");
     
-    return result.toDataStreamResponse();
+    try {
+      const result = await streamText({
+        model: openai(model as any),
+        messages: [
+          {
+            role: "user",
+            content: userMessage,
+          }
+        ],
+        system: systemPrompt,
+        temperature: 0.2,
+      });
+      
+      return result.toDataStreamResponse();
+    } catch (error) {
+      console.error("OpenAI API error in AI assistant:", error);
+      return NextResponse.json(
+        { error: "The AI service is temporarily unavailable. Please try again later." },
+        { status: 500 }
+      );
+    }
   } catch (error) {
     console.error("Error processing AI assistant request:", error);
     return NextResponse.json(

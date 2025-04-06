@@ -35,6 +35,14 @@ export async function POST(req: Request) {
   
   // Use the model specified in environment variables or fallback to gpt-4-turbo
   const model = process.env.OPENAI_API_MODEL || "gpt-4-turbo";
+  const apiKey = process.env.OPENAI_API_KEY || "";
+  const organizationId = process.env.OPENAI_ORGANIZATION_ID || "";
+  
+  // Log key for debugging (partial)
+  console.log("Using API Model:", model);
+  console.log("API Key starts with:", apiKey.substring(0, 10) + "...");
+  console.log("Using organization ID:", organizationId ? "Yes" : "No");
+  
   let retries = 0;
   
   while (retries <= MAX_RETRIES) {
@@ -42,7 +50,8 @@ export async function POST(req: Request) {
       // For single message format, use direct completion instead of streaming
       if (body.message) {
         const openaiClient = new OpenAI({
-          apiKey: process.env.OPENAI_API_KEY
+          apiKey: apiKey,
+          organization: organizationId
         });
         
         const response = await openaiClient.chat.completions.create({
@@ -58,9 +67,9 @@ export async function POST(req: Request) {
         return Response.json({ content: response.choices[0].message.content });
       }
       
-      // For messages array format, use streaming
+      // For messages array format, use streaming with Vercel AI SDK
       const result = await streamText({
-        model: openai(model),
+        model: openai(model as any),
         messages: convertToCoreMessages(messages),
         system: systemPrompt,
         temperature: 0.7,

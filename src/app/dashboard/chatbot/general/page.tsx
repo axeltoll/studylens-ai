@@ -92,7 +92,8 @@ export default function GeneralChatbotPage() {
       });
       
       if (!response.ok) {
-        throw new Error('Failed to get AI response');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to get AI response');
       }
       
       // Get the AI response
@@ -114,9 +115,15 @@ export default function GeneralChatbotPage() {
       };
       
       setMessages(prev => [...prev, aiResponse]);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching AI response:', err);
-      setError("I'm having trouble processing your request right now. Please try again later.");
+      
+      // Display a more specific error message if available
+      const errorMessage = err.message && err.message !== 'Failed to get AI response' 
+        ? err.message 
+        : "I'm having trouble processing your request right now. Please try again later.";
+      
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
