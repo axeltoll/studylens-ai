@@ -1,22 +1,28 @@
 const functions = require('firebase-functions');
 const { default: next } = require('next');
-const path = require('path');
+const admin = require('firebase-admin');
+const { nextServerConfig } = require('./next-server');
 
-// Initialize the Next.js app
-const nextApp = next({
-  dev: false,
-  conf: {
-    distDir: '.next',
-  },
-});
-const handle = nextApp.getRequestHandler();
+admin.initializeApp();
 
-// Create a Firebase Function to handle all the requests
-exports.nextServer = functions.https.onRequest((req, res) => {
-  console.log(`File: ${req.originalUrl}`);
+let nextjsServer;
+let nextjsHandle;
+
+exports.nextServer = functions.https.onRequest(async (req, res) => {
+  console.log('Request path:', req.path);
   
-  // Initialize Next.js app on the first invocation
-  return nextApp.prepare().then(() => {
-    return handle(req, res);
-  });
-}); 
+  if (!nextjsServer) {
+    console.log('Initializing Next.js server...');
+    nextjsServer = next(nextServerConfig);
+    nextjsHandle = nextjsServer.getRequestHandler();
+  }
+  
+  try {
+    await nextjsServer.prepare();
+    return nextjsHandle(req, res);
+  } catch (error) {
+    console.error('Error during request handling:', error);
+    res.status(500).send('Internal Server Error');
+    return;
+  }
+});

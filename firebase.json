@@ -2,7 +2,7 @@
   "hosting": [
     {
       "target": "main",
-      "public": ".next",
+      "public": "public",
       "ignore": [
         "firebase.json",
         "**/.*",
@@ -17,7 +17,7 @@
     },
     {
       "target": "placeholder",
-      "public": ".next/static",
+      "public": "public",
       "ignore": [
         "firebase.json",
         "**/.*",
@@ -26,8 +26,7 @@
     }
   ],
   "functions": {
-    "source": ".",
-    "codebase": "default",
+    "source": "functions",
     "ignore": [
       "node_modules",
       ".git",
