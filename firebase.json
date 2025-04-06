@@ -2,7 +2,7 @@
   "hosting": [
     {
       "target": "main",
-      "public": "out",
+      "public": ".next",
       "ignore": [
         "firebase.json",
         "**/.*",
@@ -11,18 +11,28 @@
       "rewrites": [
         {
           "source": "**",
-          "destination": "/index.html"
+          "function": "nextServer"
         }
       ]
     },
     {
       "target": "placeholder",
-      "public": "out",
+      "public": ".next/static",
       "ignore": [
         "firebase.json",
         "**/.*",
         "**/node_modules/**"
       ]
     }
-  ]
+  ],
+  "functions": {
+    "source": ".",
+    "codebase": "default",
+    "ignore": [
+      "node_modules",
+      ".git",
+      "firebase-debug.log",
+      "firebase-debug.*.log"
+    ]
+  }
 } 

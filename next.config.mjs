@@ -1,8 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  // Change from static export to server-side rendering for API routes
+  // output: 'export',
   trailingSlash: true,
-  distDir: 'out',
+  // distDir: 'out',
   typescript: {
     ignoreBuildErrors: true
   },

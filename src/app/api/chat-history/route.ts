@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { saveChat, getUserChats } from "@/lib/firebase/firebaseUtils";
 
+// Set Node.js runtime instead of Edge for Firebase compatibility
+export const runtime = "nodejs";
+// Set dynamic to 'force-dynamic' to ensure this route is not statically exported
+export const dynamic = "force-dynamic";
+
 export async function POST(req: Request) {
   try {
     const { userId, chatData } = await req.json();
