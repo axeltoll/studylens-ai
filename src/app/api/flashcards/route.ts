@@ -5,13 +5,14 @@ import { streamText } from "ai";
 export const runtime = "edge";
 
 interface Flashcard {
-  front: string;
-  back: string;
+  term: string;
+  definition: string;
+  example?: string;
 }
 
 export async function POST(req: Request) {
   try {
-    const { text, count = 10 } = await req.json();
+    const { text, cardCount = 10 } = await req.json();
     
     if (!text) {
       return NextResponse.json(
@@ -29,17 +30,20 @@ export async function POST(req: Request) {
       messages: [
         {
           role: "system",
-          content: `You are an AI assistant that generates high-quality flashcards.
-            You will be given some content and should create ${count} flashcards based on it.
-            Each flashcard should have a "front" with a question or key term 
-            and a "back" with the answer or definition.
+          content: `You are an AI assistant that creates educational flashcards.
+            You will be given content and asked to create a set of ${cardCount} flashcards.
             
-            Format your response as a valid JSON array of objects with "front" and "back" properties.
-            Example format:
+            For each flashcard:
+            1. Identify an important term, concept, or fact from the content
+            2. Provide a clear, concise definition
+            3. Include a brief example or application where relevant
+            
+            Format your response as a valid JSON array of flashcard objects:
             [
               {
-                "front": "Question or key term",
-                "back": "Answer or definition"
+                "term": "The key term or concept",
+                "definition": "A clear, concise definition",
+                "example": "An example or application (optional)"
               }
             ]
             
@@ -47,11 +51,11 @@ export async function POST(req: Request) {
         },
         {
           role: "user",
-          content: `Generate ${count} flashcards based on the following content:\n\n${text}`
+          content: `Create ${cardCount} flashcards based on this content:\n\n${text}`
         }
       ],
       temperature: 0.5,
-      maxTokens: 2000,
+      maxTokens: 3000,
     });
 
     // Return streaming response for client-side parsing

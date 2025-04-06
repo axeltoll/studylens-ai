@@ -2,8 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from './useAuth';
+// Import usage context directly from the file that exports it
+import { useUsage as useContextUsage } from '@/lib/contexts/UsageContext';
 
 interface UsageData {
+  queryUsagePercentage: number;
+  storageUsagePercentage: number;
+  exportUsagePercentage: number;
   isProUser: boolean;
   usedQueries: number;
   maxQueries: number;
@@ -12,6 +17,9 @@ interface UsageData {
   usedExports: number;
   maxExports: number;
 }
+
+// Re-export the hook from the context
+export const useUsage = useContextUsage;
 
 export function useUsage() {
   const { user } = useAuth();

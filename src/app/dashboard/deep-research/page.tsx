@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { 
   Search, 
   Upload, 
@@ -12,23 +12,34 @@ import {
   Link as LinkIcon, 
   BookOpen, 
   X, 
-  ChevronRight
+  ChevronRight,
+  Loader2
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useUsage } from "@/lib/hooks/useUsage";
+import TrialCheckoutModal from "@/app/components/TrialCheckoutModal";
 
 export default function DeepResearchPage() {
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState<{ name: string; type: string; size: string }[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<{ name: string; type: string; size: string; content?: string }[]>([]);
   const [searchResults, setSearchResults] = useState<any[] | null>(null);
   const [transcription, setTranscription] = useState<string | null>(null);
-  const { isProUser } = useUsage();
+  const [showTrialModal, setShowTrialModal] = useState(false);
+  const { isProUser, isTrialUser, usePrompt } = useUsage();
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
+  const researchContainerRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    // If user is not pro or trial, show trial modal when component mounts
+    if (!isProUser && !isTrialUser) {
+      setShowTrialModal(true);
+    }
+  }, [isProUser, isTrialUser]);
   
   // This would be connected to the Deepgram API in a real implementation
   const startRecording = () => {
@@ -56,12 +67,33 @@ export default function DeepResearchPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      const newFiles = Array.from(files).map(file => ({
-        name: file.name,
-        type: file.type.split('/')[1].toUpperCase(),
-        size: formatFileSize(file.size)
-      }));
-      setUploadedFiles([...uploadedFiles, ...newFiles]);
+      const newFiles = Array.from(files).map(file => {
+        return {
+          name: file.name,
+          type: file.type.split('/')[1].toUpperCase(),
+          size: formatFileSize(file.size)
+        };
+      });
+      
+      // Read file contents for text files
+      Array.from(files).forEach((file, index) => {
+        if (file.type.includes('text') || file.type.includes('pdf') || file.name.endsWith('.txt') || file.name.endsWith('.md')) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const content = e.target?.result as string;
+            setUploadedFiles(prevFiles => {
+              const updatedFiles = [...prevFiles];
+              if (updatedFiles[index]) {
+                updatedFiles[index] = { ...updatedFiles[index], content };
+              }
+              return updatedFiles;
+            });
+          };
+          reader.readAsText(file);
+        }
+      });
+      
+      setUploadedFiles(prevFiles => [...prevFiles, ...newFiles]);
     }
   };
   
@@ -80,45 +112,86 @@ export default function DeepResearchPage() {
     setUploadedFiles(newFiles);
   };
   
-  // This would call the Perplexity model API in a real implementation
+  // Call the Perplexity API
   const handleSearch = async () => {
     if (!query.trim() && !transcription && uploadedFiles.length === 0) return;
     
-    setIsLoading(true);
+    // Check if user has enough prompts
+    if (!usePrompt()) {
+      setShowTrialModal(true);
+      return;
+    }
     
-    // Simulate API call delay
-    setTimeout(() => {
-      // Sample research results
-      setSearchResults([
-        {
-          title: "Comprehensive Analysis on " + (query || transcription || uploadedFiles[0]?.name || "the Topic"),
-          content: "This detailed analysis explores key aspects and provides in-depth insights based on multiple academic sources and recent research papers.",
-          sources: [
-            { name: "Research Journal A", url: "#", year: "2023" },
-            { name: "Academic Database B", url: "#", year: "2022" },
-            { name: "University Publication C", url: "#", year: "2023" }
-          ]
+    setIsLoading(true);
+    setSearchResults([]);
+    
+    try {
+      // Save search to history in Firebase
+      // Code to save to Firebase would go here
+      
+      // Prepare payload
+      const searchQuery = query || transcription || "";
+      
+      // Call Perplexity API with streaming response
+      const response = await fetch('/api/perplexity', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        {
-          title: "Key Concepts and Fundamental Principles",
-          content: "An exploration of the core theories and principles relevant to the query, with historical context and contemporary applications.",
-          sources: [
-            { name: "Educational Resource D", url: "#", year: "2021" },
-            { name: "Expert Publication E", url: "#", year: "2023" }
-          ]
-        },
-        {
-          title: "Recent Developments and Future Directions",
-          content: "Analysis of emerging trends, recent breakthroughs, and potential future developments in this field of study.",
-          sources: [
-            { name: "Conference Proceedings F", url: "#", year: "2023" },
-            { name: "Industry Report G", url: "#", year: "2022" },
-            { name: "Research Paper H", url: "#", year: "2023" }
-          ]
+        body: JSON.stringify({
+          query: searchQuery,
+          files: uploadedFiles.filter(file => file.content)
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to get research results');
+      }
+      
+      // Handle streaming response
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('Unable to read response');
+      
+      const decoder = new TextDecoder();
+      let result = '';
+      
+      // Process the stream
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        const chunk = decoder.decode(value);
+        result += chunk;
+        
+        // Update UI with streaming results
+        try {
+          // Format the current accumulated result
+          const formattedResult = {
+            title: "Research on " + searchQuery,
+            content: result,
+            sources: [],
+          };
+          
+          setSearchResults([formattedResult]);
+          
+          // Auto-scroll to bottom as new content arrives
+          if (researchContainerRef.current) {
+            researchContainerRef.current.scrollTop = researchContainerRef.current.scrollHeight;
+          }
+        } catch (err) {
+          console.error('Error parsing stream chunk:', err);
         }
-      ]);
+      }
+    } catch (error) {
+      console.error('Error during research:', error);
+      setSearchResults([{
+        title: "Error Occurred",
+        content: "We encountered an error while researching. Please try again later.",
+        sources: []
+      }]);
+    } finally {
       setIsLoading(false);
-    }, 3000);
+    }
   };
   
   return (
@@ -158,7 +231,11 @@ export default function DeepResearchPage() {
                   onClick={handleSearch}
                   disabled={isLoading}
                 >
-                  <Search className="h-4 w-4" />
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Search className="h-4 w-4" />
+                  )}
                 </button>
               </div>
             </div>
@@ -179,6 +256,7 @@ export default function DeepResearchPage() {
                 <button
                   onClick={handleUploadClick}
                   className="inline-flex items-center justify-center p-2 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-3"
+                  disabled={isLoading}
                 >
                   <Upload className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                 </button>
@@ -213,6 +291,7 @@ export default function DeepResearchPage() {
                       <button 
                         className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                         onClick={() => removeFile(index)}
+                        disabled={isLoading}
                       >
                         <X className="h-4 w-4" />
                       </button>
@@ -235,6 +314,7 @@ export default function DeepResearchPage() {
                       : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
                   }`}
                   onClick={isRecording ? stopRecording : startRecording}
+                  disabled={isLoading}
                 >
                   <Mic className="h-5 w-5" />
                   <span>{isRecording ? "Stop Recording" : "Start Recording"}</span>
@@ -249,8 +329,9 @@ export default function DeepResearchPage() {
                     className="hidden"
                   />
                   <button
+                    className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg flex items-center gap-2"
                     onClick={handleAudioUploadClick}
-                    className="px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center gap-2 text-gray-800 dark:text-gray-200"
+                    disabled={isLoading}
                   >
                     <Paperclip className="h-5 w-5" />
                     <span>Upload Audio</span>
@@ -264,14 +345,15 @@ export default function DeepResearchPage() {
                   <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Transcription:
                   </p>
-                  <p className="text-gray-800 dark:text-gray-200 text-sm">{transcription}</p>
-                  <div className="flex justify-end mt-2">
+                  <p className="text-gray-600 dark:text-gray-300 text-sm">
+                    {transcription}
+                  </p>
+                  <div className="mt-2 flex justify-end">
                     <button 
-                      className="text-blue-600 dark:text-blue-400 text-sm font-medium flex items-center"
-                      onClick={() => setQuery(transcription)}
+                      className="text-blue-600 text-sm font-medium hover:text-blue-800"
+                      onClick={() => setTranscription(null)}
                     >
-                      Use as Query
-                      <ChevronRight className="h-4 w-4 ml-1" />
+                      Clear
                     </button>
                   </div>
                 </div>
@@ -280,132 +362,156 @@ export default function DeepResearchPage() {
           </div>
           
           {/* Research Results */}
-          {isLoading ? (
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8 text-center">
-              <div className="flex flex-col items-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Analyzing {query ? "your query" : uploadedFiles.length > 0 ? "your documents" : "your input"}...
-                </p>
-                <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">
-                  Using multiple AI models to gather comprehensive research
+          <div 
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 overflow-y-auto" 
+            style={{ maxHeight: "800px" }}
+            ref={researchContainerRef}
+          >
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Research Results
+            </h2>
+            
+            {isLoading && !searchResults && (
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+                <p className="text-gray-600 dark:text-gray-300">Researching in-depth information...</p>
+              </div>
+            )}
+            
+            {!isLoading && !searchResults && (
+              <div className="text-center py-12">
+                <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-full inline-flex items-center justify-center mb-4">
+                  <Bot className="h-8 w-8 text-gray-500 dark:text-gray-400" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                  Start Your Research
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300 max-w-md mx-auto">
+                  Enter a research question, upload documents, or provide audio input to generate comprehensive research with academic citations.
                 </p>
               </div>
-            </div>
-          ) : searchResults ? (
-            <div className="space-y-6">
-              {searchResults.map((result, index) => (
-                <div key={index} className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                      {result.title}
-                    </h3>
-                    <p className="text-gray-700 dark:text-gray-300 mb-4">
-                      {result.content}
-                    </p>
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        Sources ({result.sources.length})
-                      </h4>
-                      {result.sources.map((source: any, sIndex: number) => (
-                        <div key={sIndex} className="flex items-center">
-                          <LinkIcon className="h-4 w-4 text-blue-500 mr-2" />
-                          <a 
-                            href={source.url} 
-                            className="text-blue-600 dark:text-blue-400 text-sm hover:underline"
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                          >
-                            {source.name} ({source.year})
-                          </a>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+            )}
+            
+            {searchResults && searchResults.map((result, index) => (
+              <div key={index} className="mb-8">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                  {result.title}
+                </h3>
+                <div className="prose prose-blue dark:prose-invert max-w-none mb-4">
+                  <div dangerouslySetInnerHTML={{ 
+                    __html: result.content
+                      .replace(/\n\n/g, '<br><br>')
+                      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                  }} />
                 </div>
-              ))}
-            </div>
-          ) : null}
+                
+                {result.sources && result.sources.length > 0 && (
+                  <div className="mt-6">
+                    <h4 className="text-md font-medium text-gray-900 dark:text-white mb-2">
+                      Sources & Citations
+                    </h4>
+                    <ul className="space-y-2">
+                      {result.sources.map((source: any, sourceIndex: number) => (
+                        <li key={sourceIndex} className="flex items-start">
+                          <div className="flex-shrink-0 p-1 bg-blue-100 dark:bg-blue-900 rounded-md mr-3">
+                            <LinkIcon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              {source.name} ({source.year})
+                            </p>
+                            <a 
+                              href={source.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-xs text-blue-600 hover:text-blue-800"
+                            >
+                              {source.url}
+                            </a>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
         
-        {/* Right Sidebar */}
-        <div>
+        {/* Research History & Recommendations */}
+        <div className="lg:col-span-1">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Research Tools</h2>
-            <div className="space-y-4">
-              <button className="w-full flex items-center p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg mr-3">
-                  <Bot className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">AI Research Assistant</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Ask specific questions</p>
-                </div>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Recent Research
+            </h2>
+            
+            <div className="space-y-3">
+              <button className="w-full text-left p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                <p className="font-medium text-gray-900 dark:text-white">Climate Change Impact on Ecosystems</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">2 days ago</p>
               </button>
               
-              <button className="w-full flex items-center p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg mr-3">
-                  <BookOpen className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">Citation Generator</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Generate formatted citations</p>
-                </div>
+              <button className="w-full text-left p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                <p className="font-medium text-gray-900 dark:text-white">Neural Networks Applications</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">1 week ago</p>
               </button>
               
-              <button className="w-full flex items-center p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg mr-3">
-                  <FileText className="h-5 w-5 text-green-600 dark:text-green-400" />
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">Export to Document</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Save research as PDF or DOCX</p>
-                </div>
+              <button className="w-full text-left p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                <p className="font-medium text-gray-900 dark:text-white">Sustainable Energy Solutions</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">2 weeks ago</p>
               </button>
+            </div>
+            
+            <div className="mt-4">
+              <Link 
+                href="/dashboard/library"
+                className="text-blue-600 text-sm font-medium hover:text-blue-800 flex items-center"
+              >
+                View all research
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Link>
             </div>
           </div>
           
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-md p-6 text-white">
-            <h3 className="text-lg font-bold mb-2">Pro Research Features</h3>
-            <p className="text-blue-100 text-sm mb-4">
-              Get access to advanced research capabilities and unlimited AI assistance.
-            </p>
-            <ul className="space-y-2 mb-4">
-              <li className="flex items-start">
-                <div className="flex-shrink-0 h-5 w-5 rounded-full inline-flex items-center justify-center bg-blue-500 mr-2">
-                  <svg className="h-3 w-3 text-white" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-                <span className="text-sm">Unlimited research sessions</span>
-              </li>
-              <li className="flex items-start">
-                <div className="flex-shrink-0 h-5 w-5 rounded-full inline-flex items-center justify-center bg-blue-500 mr-2">
-                  <svg className="h-3 w-3 text-white" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-                <span className="text-sm">Access to academic journals</span>
-              </li>
-              <li className="flex items-start">
-                <div className="flex-shrink-0 h-5 w-5 rounded-full inline-flex items-center justify-center bg-blue-500 mr-2">
-                  <svg className="h-3 w-3 text-white" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-                <span className="text-sm">Advanced data visualization</span>
-              </li>
-            </ul>
-            <Link 
-              href="/dashboard/pro" 
-              className="inline-flex items-center px-4 py-2 bg-white text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors"
-            >
-              {isProUser ? "Manage Subscription" : "Upgrade to Pro"}
-              <ChevronRight className="ml-2 h-4 w-4" />
-            </Link>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Recommended Topics
+            </h2>
+            
+            <div className="space-y-3">
+              <button 
+                className="w-full text-left p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                onClick={() => setQuery("Artificial Intelligence Ethics and Regulations")}
+              >
+                <p className="font-medium text-gray-900 dark:text-white">AI Ethics & Regulations</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Current debates and frameworks</p>
+              </button>
+              
+              <button 
+                className="w-full text-left p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                onClick={() => setQuery("Quantum Computing Applications in Cryptography")}
+              >
+                <p className="font-medium text-gray-900 dark:text-white">Quantum Computing & Cryptography</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Security implications and advances</p>
+              </button>
+              
+              <button 
+                className="w-full text-left p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                onClick={() => setQuery("Renewable Energy Storage Technologies")}
+              >
+                <p className="font-medium text-gray-900 dark:text-white">Energy Storage Technologies</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Batteries, hydrogen, and alternatives</p>
+              </button>
+            </div>
           </div>
         </div>
       </div>
+      
+      {/* Trial Modal */}
+      {showTrialModal && (
+        <TrialCheckoutModal onClose={() => setShowTrialModal(false)} />
+      )}
     </div>
   );
 } 

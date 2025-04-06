@@ -11,6 +11,10 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // Extract the main content and modals by checking if children is an array
+  const mainContent = Array.isArray(children) ? children[0] : children;
+  const modals = Array.isArray(children) ? children.slice(1) : null;
 
   return (
     <ThemeProvider>
@@ -40,9 +44,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <DashboardHeader />
           
           <main className="py-6 px-4 sm:px-6 lg:px-8">
-            {children}
+            {mainContent}
           </main>
         </div>
+        
+        {/* Modal content - will be positioned over the main content */}
+        {modals}
       </div>
     </ThemeProvider>
   );
