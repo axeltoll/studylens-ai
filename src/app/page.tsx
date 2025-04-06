@@ -239,7 +239,16 @@ export default function Home() {
           <div className={`flex justify-between items-center bg-white ${scrolled ? 'bg-opacity-70' : 'bg-opacity-100'} rounded-2xl py-3 px-6 shadow-lg shadow-gray-200/50`} style={{ backdropFilter: 'blur(8px)' }}>
             <div className="flex items-center">
               <Link href="/" className="mr-8">
-                <h1 className="font-bold text-xl">StudyLens AI</h1>
+                <div className="flex items-center">
+                  <Image 
+                    src="https://storage.googleapis.com/msgsndr/stBxTs2j8T3pmc3ZL1WH/media/67f1dac9f10fee532eb38351.png" 
+                    alt="StudyLens AI" 
+                    width={35} 
+                    height={35} 
+                    className="mr-2" 
+                  />
+                  <h1 className="font-bold text-xl">StudyLens AI</h1>
+                </div>
               </Link>
               <nav className="hidden md:flex space-x-6">
                 <Link href="#features" className="text-gray-700 hover:text-blue-600 font-medium">Features</Link>
@@ -321,7 +330,7 @@ export default function Home() {
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 shadow-lg max-w-5xl mx-auto">
               <div className="aspect-video bg-gray-800 rounded-xl overflow-hidden mb-8">
                 <Image
-                  src="https://placehold.co/1200x675/2563eb/FFFFFF/png?text=StudyLens+AI+Homework+Helper+Interface"
+                  src="https://storage.googleapis.com/msgsndr/stBxTs2j8T3pmc3ZL1WH/media/67f1dd1e0e320290459346e9.png"
                   alt="StudyLens AI Homework Helper Interface"
                   width={1200}
                   height={675}
@@ -401,7 +410,7 @@ export default function Home() {
             <div className="bg-gray-100 rounded-2xl p-6 relative">
               <div className="aspect-[3/2] bg-white rounded-xl overflow-hidden shadow-md">
                 <Image
-                  src="https://placehold.co/800x600/e2e8f0/1e3a8a/png?text=Chrome+Extension+Preview"
+                  src="https://storage.googleapis.com/msgsndr/stBxTs2j8T3pmc3ZL1WH/media/67f1dd1e0e3202c8639346eb.png"
                   alt="Chrome Extension Preview"
                   width={800}
                   height={600}
@@ -423,7 +432,7 @@ export default function Home() {
             <div className="order-2 md:order-1">
               <div className="bg-white rounded-2xl p-4 shadow-lg">
                 <Image
-                  src="https://placehold.co/600x800/ffffff/1e3a8a/png?text=StudyLens+AI+Mobile+App"
+                  src="https://storage.googleapis.com/msgsndr/stBxTs2j8T3pmc3ZL1WH/media/67f1dd1ef10fee08e2b384d6.png"
                   alt="StudyLens AI Mobile App"
                   width={600}
                   height={800}
@@ -468,9 +477,9 @@ export default function Home() {
             </div>
             <div className="bg-gradient-to-br from-purple-50 to-pink-100 rounded-2xl p-8">
               <Sparkles className="h-10 w-10 text-purple-600 mb-6" />
-              <h3 className="text-2xl font-bold mb-4">Perfect Essays in a Click</h3>
+              <h3 className="text-2xl font-bold mb-4">Deep research with AI</h3>
               <p className="text-gray-700 mb-6">
-                Activate the AI Homework Helper's Essay Mode to generate essays in seconds. Create A+ essays instantly, with expert touch, smart suggestions, and perfect readability.
+                Get sophisticated answers to any topic. Upload reading materials or research papers for personalized answers based on your own material.
               </p>
             </div>
             <div className="bg-gradient-to-br from-green-50 to-teal-100 rounded-2xl p-8">
@@ -479,6 +488,55 @@ export default function Home() {
               <p className="text-gray-700 mb-6">
                 Use the AI Homework Helper's Code Generator to create, run, and debug code. Instantly generate code, run it, and improve it with comments and logs.
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Dashboard Feature - Adding this section with the actual image */}
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="inline-block mb-4 px-4 py-1 bg-blue-100 text-blue-800 rounded-full font-medium text-sm">
+                Web Dashboard
+              </div>
+              <h2 className="text-3xl font-bold mb-6">Track your progress and access all tools</h2>
+              <p className="text-lg text-gray-600 mb-6">
+                Access your study materials, chat history, and all tools from one central dashboard.
+              </p>
+              <div className="space-y-4">
+                <div className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="font-semibold mb-1">Organize your study materials</h3>
+                    <p className="text-gray-600">Upload books, notes, and papers to use with AI</p>
+                  </div>
+                </div>
+                <div className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="font-semibold mb-1">Access your chat history</h3>
+                    <p className="text-gray-600">Never lose an important conversation</p>
+                  </div>
+                </div>
+                <div className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="font-semibold mb-1">Generate flashcards and quizzes</h3>
+                    <p className="text-gray-600">Test your knowledge with AI-generated practice materials</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl p-4 shadow-lg">
+              <Image
+                src="https://storage.googleapis.com/msgsndr/stBxTs2j8T3pmc3ZL1WH/media/67f1dd1ef10fee3c26b384d8.png"
+                alt="StudyLens AI Dashboard"
+                width={600}
+                height={400}
+                className="w-full rounded-xl"
+              />
             </div>
           </div>
         </div>
@@ -686,7 +744,16 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-5 gap-8">
             <div className="md:col-span-2">
-              <h2 className="text-white text-xl font-bold mb-6">StudyLens AI</h2>
+              <div className="flex items-center mb-4">
+                <Image 
+                  src="https://storage.googleapis.com/msgsndr/stBxTs2j8T3pmc3ZL1WH/media/67f1dd1e0e320285329346ec.png" 
+                  alt="StudyLens AI" 
+                  width={40} 
+                  height={40} 
+                  className="mr-2" 
+                />
+                <h2 className="text-white text-xl font-bold">StudyLens AI</h2>
+              </div>
               <p className="mb-6 text-gray-400">Instant, Expert Homework Help.</p>
               <div className="space-y-3">
                 <button 
@@ -751,20 +818,21 @@ function FeatureCheck({ text }: { text: string }) {
   );
 }
 
-function FaqItem({ question, answer }: { question: string, answer: string }) {
+function FaqItem({ question, answer }: { question: string; answer: string }) {
   const [isOpen, setIsOpen] = useState(false);
   
   return (
     <div className="py-5">
-      <button
+      <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-full text-left font-medium text-lg px-6" >
-        {question}
+        className="flex justify-between items-center w-full text-left"
+      >
+        <h3 className="text-lg font-semibold">{question}</h3>
         <ChevronDown className={`h-5 w-5 text-gray-500 transition-transform ${isOpen ? 'transform rotate-180' : ''}`} />
       </button>
       {isOpen && (
-        <div className="mt-3 px-6 text-gray-600">
-          {answer}
+        <div className="mt-3 text-gray-600">
+          <p>{answer}</p>
         </div>
       )}
     </div>
