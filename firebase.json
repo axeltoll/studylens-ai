@@ -24,9 +24,5 @@
         "**/node_modules/**"
       ]
     }
-  ],
-  "functions": {
-    "source": ".",
-    "runtime": "nodejs18"
-  }
+  ]
 } 
