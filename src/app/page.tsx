@@ -233,37 +233,509 @@ export default function Home() {
         />
       )}
       
-      {/* Basic header */}
+      {/* Header */}
       <header className="py-4 sticky top-0 z-50 bg-transparent">
         <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center bg-white rounded-2xl py-3 px-6 shadow-lg">
+          <div className={`flex justify-between items-center bg-white ${scrolled ? 'bg-opacity-70' : 'bg-opacity-100'} rounded-2xl py-3 px-6 shadow-lg shadow-gray-200/50`} style={{ backdropFilter: 'blur(8px)' }}>
             <div className="flex items-center">
-              <h1 className="font-bold text-xl">StudyLens AI</h1>
+              <Link href="/" className="mr-8">
+                <h1 className="font-bold text-xl">StudyLens AI</h1>
+              </Link>
+              <nav className="hidden md:flex space-x-6">
+                <Link href="#features" className="text-gray-700 hover:text-blue-600 font-medium">Features</Link>
+                <Link href="#pricing" className="text-gray-700 hover:text-blue-600 font-medium">Pricing</Link>
+                <Link href="#faq" className="text-gray-700 hover:text-blue-600 font-medium">FAQ</Link>
+                <a href="https://chrome.google.com/webstore" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-blue-600 font-medium">Chrome Extension</a>
+              </nav>
             </div>
-            <div>
-              <button onClick={handleGetStarted} className="bg-blue-600 text-white px-4 py-2 rounded-xl">
-                Get Started
+            <div className="flex items-center space-x-4">
+              <button 
+                onClick={handleDashboardClick}
+                className="text-gray-700 hover:text-blue-600 font-medium"
+              >
+                Dashboard
+              </button>
+              <button
+                onClick={handleGetStarted}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-xl"
+              >
+                Get Started Free
               </button>
             </div>
           </div>
         </div>
       </header>
       
-      {/* Basic hero section */}
-      <section className="py-20">
+      {/* Hero Section */}
+      <section className="pt-24 pb-16">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl font-bold mb-6">Instant, Expert AI Homework Helper</h1>
-          <p className="text-lg mb-8">Get instant, accurate answers and step-by-step explanations for all your homework questions.</p>
-          <button onClick={handleGetStarted} className="bg-blue-600 text-white px-6 py-3 rounded-xl">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+            Instant, Expert AI Homework Helper
+          </h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-10">
+            Get instant, accurate answers and step-by-step explanations for all your homework questions. Our AI technology works with all major learning platforms.
+          </p>
+          
+          {/* USP Features List */}
+          <div className="max-w-2xl mx-auto mb-10">
+            <div className="flex flex-col gap-3">
+              <FeatureCheck text="Get instant step-by-step solutions for any subject" />
+              <FeatureCheck text="Undetectable by university monitoring systems" />
+              <FeatureCheck text="Works with all major learning platforms and question types" />
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <button 
+              onClick={handleGetStarted}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-xl"
+            >
+              Start with Free Plan
+            </button>
+            <a 
+              href="https://chrome.google.com/webstore" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center justify-center bg-white border-2 border-gray-200 text-gray-800 font-semibold py-3 px-8 rounded-xl hover:bg-gray-50"
+            >
+              Get Chrome Extension
+            </a>
+          </div>
+          
+          {/* Badges */}
+          <div className="flex flex-wrap justify-center gap-6 mb-16">
+            <div className="flex items-center text-sm text-gray-600">
+              <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+              <span>Satisfaction guaranteed</span>
+            </div>
+            <div className="flex items-center text-sm text-gray-600">
+              <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+              <span>Cancel anytime</span>
+            </div>
+            <div className="flex items-center text-sm text-gray-600">
+              <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+              <span>24/7 customer support</span>
+            </div>
+          </div>
+          
+          <div className="relative">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 shadow-lg max-w-5xl mx-auto">
+              <div className="aspect-video bg-gray-800 rounded-xl overflow-hidden mb-8">
+                <Image
+                  src="https://placehold.co/1200x675/2563eb/FFFFFF/png?text=StudyLens+AI+Homework+Helper+Interface"
+                  alt="StudyLens AI Homework Helper Interface"
+                  width={1200}
+                  height={675}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="flex flex-wrap justify-center gap-8 md:gap-16">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-blue-600 mb-1">98%</div>
+                  <div className="text-sm text-gray-600">Accurate</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-blue-600 mb-1">30M</div>
+                  <div className="text-sm text-gray-600">Questions Solved</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-blue-600 mb-1">4.8</div>
+                  <div className="text-sm text-gray-600">Rated by students</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Logo animation */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-2xl font-bold mb-12">Works with All Major Learning Platforms</h2>
+          <div className="flex flex-wrap justify-center gap-8">
+            {platformLogos.map((logo, index) => (
+              <div key={index} className={`flex items-center justify-center ${logo.small ? 'w-20 h-20' : 'w-28 h-28'}`}>
+                <Image 
+                  src={logo.url} 
+                  alt={logo.name} 
+                  width={logo.small ? 80 : 112}
+                  height={logo.small ? 80 : 112}
+                  className="object-contain max-w-full max-h-full"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* Chrome Extension Feature */}
+      <section className="py-20" id="features">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="inline-block mb-4 px-4 py-1 bg-blue-100 text-blue-800 rounded-full font-medium text-sm">
+                Chrome Extension
+              </div>
+              <h2 className="text-3xl font-bold mb-6">One-click answers — without switching tabs</h2>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-semibold text-xl mb-2">Get answers from wherever you are, and just ask with one click.</h3>
+                  <p className="text-gray-600">Accurate problem solving and guided reasoning</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-xl mb-2">Fully guided explanations and step-by-step reasoning to explain any subject.</h3>
+                  <p className="text-gray-600">Add context from your study materials</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-xl mb-2">Upload guidebooks or lecture PDFs before a test and get tailored-specific answers.</h3>
+                  <p className="text-gray-600">Follow up with your personal AI</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-xl mb-2">Open the AI chat on any website and ask any question you have for deepened understanding!</h3>
+                </div>
+              </div>
+              <Link href="#" className="inline-flex items-center mt-8 text-blue-600 font-medium hover:text-blue-700">
+                Learn more
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </div>
+            <div className="bg-gray-100 rounded-2xl p-6 relative">
+              <div className="aspect-[3/2] bg-white rounded-xl overflow-hidden shadow-md">
+                <Image
+                  src="https://placehold.co/800x600/e2e8f0/1e3a8a/png?text=Chrome+Extension+Preview"
+                  alt="Chrome Extension Preview"
+                  width={800}
+                  height={600}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 bg-white px-6 py-2 rounded-full shadow-lg">
+                <p className="text-sm font-medium">Chrome Extension Available in the Chrome Extension Store</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Mobile App Feature */}
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="order-2 md:order-1">
+              <div className="bg-white rounded-2xl p-4 shadow-lg">
+                <Image
+                  src="https://placehold.co/600x800/ffffff/1e3a8a/png?text=StudyLens+AI+Mobile+App"
+                  alt="StudyLens AI Mobile App"
+                  width={600}
+                  height={800}
+                  className="w-full rounded-xl"
+                />
+              </div>
+            </div>
+            <div className="order-1 md:order-2">
+              <h2 className="text-3xl font-bold mb-6">Scan & Solve All Subjects</h2>
+              <p className="text-lg text-gray-600 mb-6">Simply take a picture and get an answer instantly.</p>
+              <div className="flex items-center mb-4">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star key={star} className="h-5 w-5 text-yellow-400 fill-yellow-400" />
+                ))}
+                <span className="ml-2 text-gray-600">4.8 • on the App Store</span>
+              </div>
+              <div className="text-3xl font-bold text-blue-600 mb-6">20,000,000+</div>
+              <p className="text-gray-600 mb-6">questions answered</p>
+              <Link href="#" className="inline-flex items-center text-blue-600 font-medium hover:text-blue-700">
+                Learn more
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Study Chat Feature */}
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl p-8">
+              <Brain className="h-10 w-10 text-blue-600 mb-6" />
+              <h3 className="text-2xl font-bold mb-4">Study Chat for all your curricular needs</h3>
+              <p className="text-gray-700 mb-6">
+                The #1 voted AI homework helper for students at any academic level. Breaks down math and complex subjects better than any chatbot.
+              </p>
+              <Link href="#" className="inline-flex items-center text-blue-600 font-medium hover:text-blue-700">
+                Explore Now
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </div>
+            <div className="bg-gradient-to-br from-purple-50 to-pink-100 rounded-2xl p-8">
+              <Sparkles className="h-10 w-10 text-purple-600 mb-6" />
+              <h3 className="text-2xl font-bold mb-4">Perfect Essays in a Click</h3>
+              <p className="text-gray-700 mb-6">
+                Activate the AI Homework Helper's Essay Mode to generate essays in seconds. Create A+ essays instantly, with expert touch, smart suggestions, and perfect readability.
+              </p>
+            </div>
+            <div className="bg-gradient-to-br from-green-50 to-teal-100 rounded-2xl p-8">
+              <Code className="h-10 w-10 text-green-600 mb-6" />
+              <h3 className="text-2xl font-bold mb-4">Write, Run, Debug—All in One</h3>
+              <p className="text-gray-700 mb-6">
+                Use the AI Homework Helper's Code Generator to create, run, and debug code. Instantly generate code, run it, and improve it with comments and logs.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* AI Tools Features */}
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold mb-16">The last AI tools you'll ever need</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-white rounded-2xl p-8 shadow-sm">
+              <Shield className="h-12 w-12 text-blue-600 mx-auto mb-6" />
+              <h3 className="text-xl font-bold mb-4">Don't Get Caught</h3>
+              <p className="text-gray-600">
+                Our software prevents websites from detecting our AI-powered quiz extension for private academic assistance.
+              </p>
+            </div>
+            <div className="bg-white rounded-2xl p-8 shadow-sm">
+              <Play className="h-12 w-12 text-blue-600 mx-auto mb-6" />
+              <h3 className="text-xl font-bold mb-4">Get step by step explanations</h3>
+              <p className="text-gray-600">
+                Reinforce your learning with detailed, step-by-step guidance for each question to build true understanding.
+              </p>
+            </div>
+            <div className="bg-white rounded-2xl p-8 shadow-sm">
+              <Zap className="h-12 w-12 text-blue-600 mx-auto mb-6" />
+              <h3 className="text-xl font-bold mb-4">Reliable Answer Accuracy</h3>
+              <p className="text-gray-600">
+                Backed by the latest generation of AI and custom trained models to bring near perfect answers to your questions.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Testimonials */}
+      <section className="py-20" id="testimonials">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold mb-16 text-center">Trusted by Thousands of students worldwide</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {testimonials.slice(0, 3).map((testimonial, index) => (
+              <div key={index} className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                <div className="flex items-center mb-4">
+                  <div className="flex-shrink-0 mr-4">
+                    <div className="h-12 w-12 rounded-full bg-gray-200 overflow-hidden">
+                      <Image
+                        src={testimonial.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${testimonial.name}`}
+                        alt={testimonial.name}
+                        width={48}
+                        height={48}
+                        className="object-cover"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">{testimonial.name}</h3>
+                    <div className="text-sm text-gray-500">{testimonial.location}</div>
+                  </div>
+                </div>
+                <div className="flex mb-3">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} className={`h-5 w-5 ${i < testimonial.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />
+                  ))}
+                </div>
+                <p className="text-gray-700 mb-4">{testimonial.review}</p>
+                <div className="flex justify-between items-center text-sm text-gray-500">
+                  <span>{testimonial.university}</span>
+                  <span>{testimonial.date}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* Pricing */}
+      <section className="py-20 bg-gradient-to-b from-gray-50 via-white to-white" id="pricing">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold mb-16 text-center">Choose the Perfect Plan for You</h2>
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Free Forever Plan */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+              <div className="text-sm text-gray-500 mb-2">No Credit Card Required</div>
+              <h3 className="text-2xl font-bold mb-4">Free Forever</h3>
+              <div className="text-lg text-gray-600 mb-6">Basic access</div>
+              <p className="mb-8 text-gray-600">Perfect for occasional help with homework</p>
+              <div className="text-3xl font-bold mb-8">$0 <span className="text-lg font-normal text-gray-500">/month</span></div>
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-3 mt-0.5" />
+                  <span className="text-gray-600">Limited questions per day</span>
+                </li>
+                <li className="flex items-start text-gray-400">
+                  <CheckCircle className="h-5 w-5 text-gray-300 mr-3 mt-0.5" />
+                  <span>Deep research (Pro only)</span>
+                </li>
+                <li className="flex items-start text-gray-400">
+                  <CheckCircle className="h-5 w-5 text-gray-300 mr-3 mt-0.5" />
+                  <span>Custom curriculum knowledge (Pro only)</span>
+                </li>
+              </ul>
+              <button 
+                onClick={handleGetStarted}
+                className="w-full py-3 px-4 bg-white border-2 border-gray-200 text-blue-600 font-semibold rounded-xl hover:bg-gray-50"
+              >
+                Sign Up Free
+              </button>
+              <div className="text-sm text-center text-gray-500 mt-4">No credit card required</div>
+            </div>
+
+            {/* 3 Day Free Trial */}
+            <div className="bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl p-8 shadow-lg text-white relative overflow-hidden">
+              <div className="absolute top-3 right-3 bg-yellow-400 text-blue-900 text-xs font-bold px-3 py-1 rounded-full">
+                Offer valid until April 20th, 2025
+              </div>
+              <div className="text-sm opacity-80 mb-2">3 days FREE</div>
+              <h3 className="text-2xl font-bold mb-4">Unlimited access</h3>
+              <p className="mb-8 text-blue-100">
+                Lock in your special price of $9.95/month before it increases to $14.95/month after April 20, 2025
+              </p>
+              <div className="text-3xl font-bold mb-8">
+                <span className="line-through text-blue-200 text-xl mr-2">$14.95</span>
+                $9.95 <span className="text-lg font-normal opacity-80">/month</span>
+              </div>
+              
+              {/* Countdown Timer moved below price box */}
+              <div className="grid grid-cols-4 gap-2 mb-8">
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-2 text-center">
+                  <div className="text-2xl font-bold">{timeLeft.days}</div>
+                  <div className="text-xs">Days</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-2 text-center">
+                  <div className="text-2xl font-bold">{timeLeft.hours}</div>
+                  <div className="text-xs">Hours</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-2 text-center">
+                  <div className="text-2xl font-bold">{timeLeft.minutes}</div>
+                  <div className="text-xs">Minutes</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-2 text-center">
+                  <div className="text-2xl font-bold">{timeLeft.seconds}</div>
+                  <div className="text-xs">Seconds</div>
+                </div>
+              </div>
+              
+              <button
+                onClick={handleGetStarted}
+                className="w-full py-3 px-4 bg-white text-blue-600 font-semibold rounded-xl hover:bg-blue-50"
+              >
+                Get Started Free
+              </button>
+              <div className="text-sm text-center mt-4 text-blue-100">
+                Cancel anytime | Renews at $9.95/month
+              </div>
+              
+              <div className="flex justify-between mt-6 pt-6 border-t border-white/20">
+                <Image src="https://placehold.co/40x25/ffffff/ffffff/png?text=Visa" alt="Visa" width={40} height={25} className="h-6 w-auto" />
+                <Image src="https://placehold.co/40x25/ffffff/ffffff/png?text=MC" alt="Mastercard" width={40} height={25} className="h-6 w-auto" />
+                <Image src="https://placehold.co/40x25/ffffff/ffffff/png?text=Amex" alt="American Express" width={40} height={25} className="h-6 w-auto" />
+                <Image src="https://placehold.co/40x25/ffffff/ffffff/png?text=Disc" alt="Discover" width={40} height={25} className="h-6 w-auto" />
+                <Image src="https://placehold.co/40x25/ffffff/ffffff/png?text=PayPal" alt="PayPal" width={40} height={25} className="h-6 w-auto" />
+                <Image src="https://placehold.co/40x25/ffffff/ffffff/png?text=ApplePay" alt="Apple Pay" width={40} height={25} className="h-6 w-auto" />
+                <Image src="https://placehold.co/40x25/ffffff/ffffff/png?text=GPay" alt="Google Pay" width={40} height={25} className="h-6 w-auto" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* FAQ Section */}
+      <section className="py-20" id="faq">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold mb-16 text-center">Frequently Asked Questions</h2>
+          <div className="max-w-3xl mx-auto divide-y divide-gray-200">
+            {faqs.map((faq, index) => (
+              <FaqItem key={index} question={faq.question} answer={faq.answer} />
+            ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* Final CTA */}
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto px-4 text-center">
+          <div className="flex justify-center mb-4">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star key={star} className="h-6 w-6 text-yellow-400 fill-yellow-400" />
+            ))}
+          </div>
+          <h2 className="text-3xl font-bold mb-4">Ready to fast-track your homework?</h2>
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            Save hours on homework and never worry about exams ever again.
+          </p>
+          <button
+            onClick={handleGetStarted}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-xl"
+          >
             Get Started Free
           </button>
         </div>
       </section>
       
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="container mx-auto px-4 text-center">
-          <p>Copyright © {new Date().getFullYear()}, StudyLens AI</p>
+      <footer className="bg-gray-900 text-gray-300 py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-5 gap-8">
+            <div className="md:col-span-2">
+              <h2 className="text-white text-xl font-bold mb-6">StudyLens AI</h2>
+              <p className="mb-6 text-gray-400">Instant, Expert Homework Help.</p>
+              <div className="space-y-3">
+                <button 
+                  onClick={handleGetStarted}
+                  className="block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg"
+                >
+                  Get Started - It's Free
+                </button>
+                <div className="flex space-x-4">
+                  <a href="https://chrome.google.com/webstore" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-white">
+                    Chrome Web Store
+                  </a>
+                  <a href="#" className="text-sm text-gray-400 hover:text-white">
+                    App Store
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3 className="text-white font-semibold mb-4">Navigation</h3>
+              <ul className="space-y-2">
+                <li><Link href="#features" className="text-gray-400 hover:text-white">Features</Link></li>
+                <li><Link href="#pricing" className="text-gray-400 hover:text-white">Pricing</Link></li>
+                <li><Link href="#testimonials" className="text-gray-400 hover:text-white">Testimonials</Link></li>
+                <li><Link href="#faq" className="text-gray-400 hover:text-white">FAQ</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-white font-semibold mb-4">Support</h3>
+              <ul className="space-y-2">
+                <li><Link href="#" className="text-gray-400 hover:text-white">Help Center</Link></li>
+                <li><Link href="#" className="text-gray-400 hover:text-white">Login</Link></li>
+                <li><Link href="#" className="text-gray-400 hover:text-white">Sign Up</Link></li>
+                <li><Link href="#" className="text-gray-400 hover:text-white">Dashboard</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-white font-semibold mb-4">Legal</h3>
+              <ul className="space-y-2">
+                <li><Link href="#" className="text-gray-400 hover:text-white">Terms & Conditions</Link></li>
+                <li><Link href="#" className="text-gray-400 hover:text-white">Privacy Policy</Link></li>
+                <li><Link href="#" className="text-gray-400 hover:text-white">Acceptable Use</Link></li>
+                <li><Link href="#" className="text-gray-400 hover:text-white">Academic Honesty</Link></li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-500">
+            Copyright © {new Date().getFullYear()}, StudyLens AI
+          </div>
         </div>
       </footer>
     </main>
@@ -286,8 +758,7 @@ function FaqItem({ question, answer }: { question: string, answer: string }) {
     <div className="py-5">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-full text-left font-medium text-lg px-6"
-      >
+        className="flex items-center justify-between w-full text-left font-medium text-lg px-6" >
         {question}
         <ChevronDown className={`h-5 w-5 text-gray-500 transition-transform ${isOpen ? 'transform rotate-180' : ''}`} />
       </button>
