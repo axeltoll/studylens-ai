@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InsightLens AI</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="popup-container">
+    <header class="popup-header">
+      <div class="logo-container">
+        <div class="logo">IL</div>
+        <h1>InsightLens AI</h1>
+      </div>
+      <div class="user-info" id="userInfo">
+        <button id="loginButton" class="login-button">Sign In</button>
+      </div>
+    </header>
+
+    <div class="main-content">
+      <div class="action-panel" id="actionPanel">
+        <div class="action-buttons">
+          <button id="summarizeBtn" class="action-button">
+            <span class="icon">📝</span>
+            <span>Summarize</span>
+          </button>
+          <button id="qnaBtn" class="action-button">
+            <span class="icon">❓</span>
+            <span>Ask Questions</span>
+          </button>
+          <button id="flashcardsBtn" class="action-button">
+            <span class="icon">🗂️</span>
+            <span>Generate Flashcards</span>
+          </button>
+          <button id="quizBtn" class="action-button">
+            <span class="icon">📊</span>
+            <span>Create Quiz</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="content-view" id="contentView">
+        <div class="placeholder-message">
+          <p>Select an action to start working with the current page</p>
+        </div>
+      </div>
+
+      <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p>Processing content...</p>
+      </div>
+    </div>
+
+    <footer class="popup-footer">
+      <a href="https://insightlensai.com/dashboard" target="_blank">Open Web App</a>
+      <span class="separator">|</span>
+      <a href="https://insightlensai.com/help" target="_blank">Help</a>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html> 

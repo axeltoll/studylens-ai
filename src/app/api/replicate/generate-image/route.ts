@@ -13,10 +13,21 @@ export async function POST(request: Request) {
   }
 
   const { prompt } = await request.json();
+  
+  // Use the model specified in environment variables or fallback to default
+  const replicateModel = process.env.REPLICATE_MODEL || 
+    "stability-ai/stable-diffusion:27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478";
+
+  // Validate that the model has the correct format for Replicate
+  if (!replicateModel.match(/^[^/]+\/[^/:]+(?::[^/]+)?$/)) {
+    throw new Error(
+      "Invalid Replicate model format. It should be 'owner/model:version'"
+    );
+  }
 
   try {
     const output = await replicate.run(
-      "stability-ai/stable-diffusion:db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf",
+      replicateModel as `${string}/${string}:${string}`,
       {
         input: {
           prompt: prompt,
