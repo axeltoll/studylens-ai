@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { OpenAIStream, StreamingTextResponse } from "ai";
-import OpenAI from "openai";
+import { streamText } from "ai";
+import { openai } from "@ai-sdk/openai";
 
 export const runtime = "edge";
 
@@ -88,32 +88,26 @@ export async function POST(req: NextRequest) {
         Be clear, concise, and thorough in your response.`;
     }
 
-    const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
-
     const userMessage = subject 
       ? `${action === 'answer_question' ? 'Please answer the following question' : 'Please ' + action} about ${subject}:\n\n${content}`
       : `${content}`;
 
-    const response = await openai.chat.completions.create({
-      model: process.env.OPENAI_API_MODEL || "gpt-4-turbo",
+    // Use the model specified in environment variables or fallback to gpt-4o
+    const model = process.env.OPENAI_API_MODEL || "gpt-4o";
+    
+    const result = await streamText({
+      model: openai(model),
       messages: [
-        {
-          role: "system",
-          content: systemPrompt,
-        },
         {
           role: "user",
           content: userMessage,
         }
       ],
+      system: systemPrompt,
       temperature: 0.2,
-      stream: true,
     });
-
-    const stream = OpenAIStream(response);
-    return new StreamingTextResponse(stream);
+    
+    return result.toDataStreamResponse();
   } catch (error) {
     console.error("Error processing AI assistant request:", error);
     return NextResponse.json(

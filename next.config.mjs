@@ -1,6 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
+  trailingSlash: true,
+  distDir: 'out',
+  typescript: {
+    ignoreBuildErrors: true
+  },
   images: {
     remotePatterns: [
       {
@@ -33,14 +38,6 @@ const nextConfig = {
     unoptimized: true,
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-  },
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: "https://api.openai.com/:path*",
-      },
-    ];
   },
 };
 

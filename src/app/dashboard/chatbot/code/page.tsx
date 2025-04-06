@@ -159,9 +159,11 @@ export default function CodeAssistantPage() {
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{
-              code({node, inline, className, children, ...props}) {
+              code({className, children, ...props}) {
                 const match = /language-(\w+)/.exec(className || '');
-                if (!inline && match) {
+                const isInline = !match;
+                
+                if (!isInline && match) {
                   return (
                     <div className="my-2 overflow-x-auto">
                       <div className="bg-gray-900 rounded-t-md px-4 py-2 text-xs text-gray-200 flex justify-between items-center">

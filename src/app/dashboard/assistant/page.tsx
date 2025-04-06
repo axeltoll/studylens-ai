@@ -227,7 +227,8 @@ export default function AssistantPage() {
                 <div className="flex justify-end">
                   <button
                     onClick={() => {
-                      document.querySelector('[data-state="inactive"][value="assistant"]')?.click();
+                      const element = document.querySelector('[data-state="inactive"][value="assistant"]') as HTMLButtonElement;
+                      if (element) element.click();
                     }}
                     className="bg-white text-blue-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-50"
                   >

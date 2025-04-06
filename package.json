@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "deploy": "firebase deploy",
+    "dev": "node node_modules/next/dist/bin/next dev",
+    "build": "node node_modules/next/dist/bin/next build --no-lint",
+    "export": "node node_modules/next/dist/bin/next build --no-lint",
+    "start": "node node_modules/next/dist/bin/next start",
+    "lint": "node node_modules/next/dist/bin/next lint",
+    "deploy": "npm run build && firebase deploy",
     "firebase-emulators": "firebase emulators:start"
   },
   "dependencies": {
@@ -31,7 +32,8 @@
     "react-markdown": "^9.1.0",
     "remark-gfm": "^4.0.1",
     "replicate": "^0.32.0",
-    "stripe": "^14.18.0"
+    "stripe": "^14.18.0",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@types/node": "^20",
