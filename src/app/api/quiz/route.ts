@@ -3,6 +3,7 @@ import { openai } from "@ai-sdk/openai";
 import { streamText } from "ai";
 
 export const runtime = "edge";
+export const dynamic = "force-dynamic";
 
 interface QuizQuestion {
   question: string;

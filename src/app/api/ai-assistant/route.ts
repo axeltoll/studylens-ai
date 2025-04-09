@@ -5,6 +5,8 @@ import { OpenAI } from "openai";
 
 // Change from Edge to Node runtime for Firebase compatibility
 export const runtime = "nodejs";
+// Add force-dynamic to prevent static export errors
+export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {

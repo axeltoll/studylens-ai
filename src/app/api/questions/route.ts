@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { openai } from "@ai-sdk/openai";
 import { streamText } from "ai";
 
-export const runtime = "edge";
+// Add force-dynamic to prevent static export errors
+export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
